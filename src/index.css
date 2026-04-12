@@ -8,6 +8,12 @@
   padding: 0;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
 body {
   background-color: #faf8ef;
   font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
