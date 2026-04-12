@@ -16,6 +16,7 @@ function initGame() {
     gameOver: false,
     won: false,
     keepPlaying: false,
+    gameId: Date.now(),
   };
 }
 
@@ -97,8 +98,9 @@ export function useGame() {
     const dy = t.clientY - touchStart.current.y;
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
+    touchStart.current = null;
 
-    if (Math.max(absDx, absDy) < 20) return; // 너무 짧은 스와이프 무시
+    if (Math.max(absDx, absDy) < 20) return;
 
     let direction;
     if (absDx > absDy) {
@@ -107,6 +109,9 @@ export function useGame() {
       direction = dy > 0 ? 'down' : 'up';
     }
     dispatch({ type: 'MOVE', direction });
+  }, []);
+
+  const handleTouchCancel = useCallback(() => {
     touchStart.current = null;
   }, []);
 
@@ -114,15 +119,17 @@ export function useGame() {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('touchstart', handleTouchStart, { passive: false });
     window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchCancel);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchCancel);
     };
-  }, [handleKeyDown, handleTouchStart, handleTouchEnd]);
+  }, [handleKeyDown, handleTouchStart, handleTouchEnd, handleTouchCancel]);
 
   const restart = useCallback(() => dispatch({ type: 'RESTART' }), []);
-  const keepPlaying = useCallback(() => dispatch({ type: 'KEEP_PLAYING' }), []);
+  const onKeepPlaying = useCallback(() => dispatch({ type: 'KEEP_PLAYING' }), []);
 
-  return { ...state, restart, keepPlaying };
+  return { ...state, restart, onKeepPlaying };
 }

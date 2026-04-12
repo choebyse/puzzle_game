@@ -5,7 +5,7 @@ import GameOverlay from './components/GameOverlay';
 import './index.css';
 
 export default function App() {
-  const { board, score, best, gameOver, won, keepPlaying, restart, keepPlaying: onKeepPlaying } = useGame();
+  const { board, score, best, gameOver, won, keepPlaying, restart, onKeepPlaying, gameId } = useGame();
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
@@ -35,7 +35,7 @@ export default function App() {
 
         {/* 게임 보드 */}
         <div className="relative">
-          <Board board={board} />
+          <Board key={gameId} board={board} />
           <GameOverlay
             gameOver={gameOver}
             won={won}
