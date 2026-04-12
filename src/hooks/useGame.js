@@ -86,7 +86,6 @@ export function useGame() {
   }, []);
 
   const handleTouchStart = useCallback((e) => {
-    e.preventDefault();
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
   }, []);
@@ -117,7 +116,7 @@ export function useGame() {
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('touchstart', handleTouchStart, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchend', handleTouchEnd);
     window.addEventListener('touchcancel', handleTouchCancel);
     return () => {
