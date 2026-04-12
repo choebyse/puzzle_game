@@ -4,6 +4,30 @@ import ScoreBoard from './components/ScoreBoard';
 import GameOverlay from './components/GameOverlay';
 import './index.css';
 
+function shareKakao(score, best) {
+  window.Kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: {
+      title: '2048 퍼즐게임',
+      description: `현재 점수: ${score} · 최고 점수: ${best}\n나도 도전해봐!`,
+      imageUrl: 'https://puzzle-game-eight-weld.vercel.app/icon-200.png',
+      link: {
+        mobileWebUrl: 'https://puzzle-game-eight-weld.vercel.app',
+        webUrl: 'https://puzzle-game-eight-weld.vercel.app',
+      },
+    },
+    buttons: [
+      {
+        title: '게임 하러 가기',
+        link: {
+          mobileWebUrl: 'https://puzzle-game-eight-weld.vercel.app',
+          webUrl: 'https://puzzle-game-eight-weld.vercel.app',
+        },
+      },
+    ],
+  });
+}
+
 export default function App() {
   const { board, score, best, gameOver, won, keepPlaying, restart, onKeepPlaying, gameId } = useGame();
 
@@ -22,7 +46,7 @@ export default function App() {
         {/* 설명 + 새 게임 버튼 */}
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm" style={{ color: '#776e65' }}>
-            같은 숫자를 합쳐 <strong>2048</strong>을 만드세요!
+            같은 숫자를 합쳐 최고점을 노리세요!
           </p>
           <button
             onClick={restart}
@@ -45,10 +69,19 @@ export default function App() {
           />
         </div>
 
-        {/* 조작 안내 */}
-        <p className="text-center text-xs mt-4" style={{ color: '#bbada0' }}>
-          방향키 또는 WASD로 이동 · 모바일은 스와이프
-        </p>
+        {/* 카톡 공유 + 조작 안내 */}
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-xs" style={{ color: '#bbada0' }}>
+            방향키로 이동 · 모바일은 스와이프
+          </p>
+          <button
+            onClick={() => shareKakao(score, best)}
+            className="px-3 py-1.5 rounded-md text-white text-xs font-bold"
+            style={{ backgroundColor: '#FEE500', color: '#3C1E1E' }}
+          >
+            카톡 공유
+          </button>
+        </div>
 
       </div>
     </div>
