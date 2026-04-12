@@ -4,28 +4,14 @@ import ScoreBoard from './components/ScoreBoard';
 import GameOverlay from './components/GameOverlay';
 import './index.css';
 
-function shareKakao(score, best) {
-  window.Kakao.Share.sendDefault({
-    objectType: 'feed',
-    content: {
-      title: '2048 퍼즐게임',
-      description: `현재 점수: ${score} · 최고 점수: ${best}\n나도 도전해봐!`,
-      imageUrl: 'https://puzzle-game-eight-weld.vercel.app/icon-200.png',
-      link: {
-        mobileWebUrl: 'https://puzzle-game-eight-weld.vercel.app',
-        webUrl: 'https://puzzle-game-eight-weld.vercel.app',
-      },
-    },
-    buttons: [
-      {
-        title: '게임 하러 가기',
-        link: {
-          mobileWebUrl: 'https://puzzle-game-eight-weld.vercel.app',
-          webUrl: 'https://puzzle-game-eight-weld.vercel.app',
-        },
-      },
-    ],
-  });
+function shareScore(score, best) {
+  const text = `2048 퍼즐게임\n현재 점수: ${score} · 최고 점수: ${best}\n나도 도전해봐!\nhttps://puzzle-game-eight-weld.vercel.app`;
+  if (navigator.share) {
+    navigator.share({ text });
+  } else {
+    navigator.clipboard.writeText(text);
+    alert('링크가 복사됐습니다!');
+  }
 }
 
 export default function App() {
@@ -75,7 +61,7 @@ export default function App() {
             방향키로 이동 · 모바일은 스와이프
           </p>
           <button
-            onClick={() => shareKakao(score, best)}
+            onClick={() => shareScore(score, best)}
             className="px-3 py-1.5 rounded-md text-white text-xs font-bold"
             style={{ backgroundColor: '#FEE500', color: '#3C1E1E' }}
           >
