@@ -21,6 +21,9 @@ export default function App() {
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
       <div className="w-full max-w-sm px-4">
 
+        {/* 개발자 */}
+        <p className="text-xs mb-1" style={{ color: '#bbada0' }}>개발자: 김진만</p>
+
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-5xl font-bold" style={{ color: '#776e65' }}>
