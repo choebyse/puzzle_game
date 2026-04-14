@@ -31,7 +31,7 @@ const fruitImages = FRUITS.map(fruit => {
 const W = 300;
 const H = 380;
 const WALL = 20;
-const DANGER_Y = 85;
+const DANGER_Y = 75;
 const DROP_DELAY = 600;
 
 function createFruitBody(x, y, index) {
