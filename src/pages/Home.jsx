@@ -24,7 +24,24 @@ export default function Home() {
 
         <p className="text-xs mb-1" style={{ color: '#bbada0' }}>개발자: 김진만</p>
 
-        <h1 className="text-4xl font-bold mb-2" style={{ color: '#776e65' }}>Game Center</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-4xl font-bold" style={{ color: '#776e65' }}>Game Center</h1>
+          <button
+            onClick={() => {
+              const text = `차돌박이 게임센터\nhttps://puzzle-game-eight-weld.vercel.app`;
+              if (navigator.share) {
+                navigator.share({ text });
+              } else {
+                navigator.clipboard.writeText(text);
+                alert('링크가 복사됐습니다!');
+              }
+            }}
+            className="px-3 py-1.5 rounded-md text-xs font-bold"
+            style={{ backgroundColor: '#FEE500', color: '#3C1E1E' }}
+          >
+            게임 공유
+          </button>
+        </div>
         <p className="text-sm mb-8" style={{ color: '#bbada0' }}>플레이할 게임을 선택하세요</p>
 
         <div className="flex flex-col gap-4">

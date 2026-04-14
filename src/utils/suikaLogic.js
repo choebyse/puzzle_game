@@ -6,10 +6,10 @@ export const FRUITS = [
   { name: '우영',  radius: 36,  color: '#fdcb6e', score: 15, image: '/faces/5_woyong.png' },
   { name: '광렬',  radius: 44,  color: '#e17055', score: 21, image: '/faces/6_kanyol.png' },
   { name: '진우',  radius: 51,  color: '#d63031', score: 28, image: '/faces/7_jinwo.png' },
-  { name: '상민',  radius: 60,  color: '#e84393', score: 36, image: '/faces/8_sangmin.png' },
-  { name: '승우',  radius: 71,  color: '#6c5ce7', score: 45, image: '/faces/9_sunu.png' },
-  { name: '히동',  radius: 84,  color: '#00b894', score: 55, image: '/faces/10_heedong.png' },
-  { name: '용준',  radius: 97,  color: '#2d3436', score: 66, image: '/faces/11_youngjun.png' },
+  { name: '상민',  radius: 57,  color: '#e84393', score: 36, image: '/faces/8_sangmin.png' },
+  { name: '승우',  radius: 68,  color: '#6c5ce7', score: 45, image: '/faces/9_sunu.png' },
+  { name: '히동',  radius: 79,  color: '#00b894', score: 55, image: '/faces/10_heedong.png' },
+  { name: '용준',  radius: 92,  color: '#2d3436', score: 66, image: '/faces/11_youngjun.png' },
 ];
 
 export const MAX_SPAWN_INDEX = 4; // 체리~감까지만 랜덤 생성

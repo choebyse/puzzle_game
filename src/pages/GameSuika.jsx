@@ -31,7 +31,7 @@ const fruitImages = FRUITS.map(fruit => {
 const W = 300;
 const H = 380;
 const WALL = 20;
-const DANGER_Y = 80;
+const DANGER_Y = 85;
 const DROP_DELAY = 600;
 
 function createFruitBody(x, y, index) {
@@ -61,6 +61,7 @@ export default function GameSuika() {
   const revealedRef = useRef(new Set([curFruitRef.current, nextFruitRef.current]));
 
   const [score, setScore] = useState(0);
+  const [best, setBest] = useState(Number(localStorage.getItem('suika-best') || 0));
   const [nextFruit, setNextFruit] = useState(nextFruitRef.current);
   const [gameOver, setGameOver] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -105,8 +106,11 @@ export default function GameSuika() {
           Matter.World.remove(world, bodyB);
           mergedRef.current.delete(bodyA.id);
           mergedRef.current.delete(bodyB.id);
-          scoreRef.current += FRUITS[bodyA.fruitIndex].score * 2;
+          scoreRef.current += isFinal ? FRUITS[bodyA.fruitIndex].score * 2 : FRUITS[newIndex].score;
           setScore(scoreRef.current);
+          const newBest = Math.max(scoreRef.current, Number(localStorage.getItem('suika-best') || 0));
+          localStorage.setItem('suika-best', newBest);
+          setBest(newBest);
           if (!isFinal) {
             const newBody = createFruitBody(mx, my, newIndex);
             Matter.World.add(world, newBody);
@@ -250,7 +254,7 @@ export default function GameSuika() {
       );
       if (above.length > 0) {
         gameOverTimer++;
-        if (gameOverTimer > 90) {
+        if (gameOverTimer > 180) {
           gameOverRef.current = true;
           setGameOver(true);
           Matter.Runner.stop(runner);
@@ -346,6 +350,10 @@ export default function GameSuika() {
             <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#bbada0' }}>
               <p className="text-xs text-white">점수</p>
               <p className="text-lg font-bold text-white">{score}</p>
+            </div>
+            <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#cdc1b4' }}>
+              <p className="text-xs" style={{ color: '#776e65' }}>최고</p>
+              <p className="text-lg font-bold" style={{ color: '#776e65' }}>{best}</p>
             </div>
             <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#cdc1b4' }}>
               <p className="text-xs" style={{ color: '#776e65' }}>다음</p>
