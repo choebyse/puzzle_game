@@ -76,13 +76,6 @@ export default function Game2048() {
           </button>
         </div>
 
-        {/* 앱 설치 안내 */}
-        <div className="mt-3 text-xs" style={{ color: '#bbada0' }}>
-          <p>※ 앱으로 설치 가능</p>
-          <p>아이폰: Safari 공유 버튼 → 홈 화면에 추가</p>
-          <p>안드로이드: Chrome 메뉴 → 앱 설치</p>
-        </div>
-
         {/* 메인으로 */}
         <button
           onClick={() => setShowConfirm(true)}
