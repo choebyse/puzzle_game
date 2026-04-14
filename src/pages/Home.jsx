@@ -9,8 +9,8 @@ const GAMES = [
   },
   {
     path: '/suika',
-    title: '수박게임',
-    description: '과일을 떨어뜨려 합치고 수박을 만드세요',
+    title: '벌크업 게임',
+    description: '친구들을 떨어뜨려 합치고 용준을 만드세요',
     bg: '#8fbf6a',
   },
 ];
