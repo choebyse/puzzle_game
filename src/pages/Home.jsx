@@ -10,7 +10,7 @@ const GAMES = [
   {
     path: '/suika',
     title: '벌크업 게임',
-    description: '친구들을 떨어뜨려 합치고 용준을 만드세요',
+    description: '수박게임 비스무리한 거 · 멍청이들을 떨어뜨려 합쳐보세요',
     bg: '#8fbf6a',
   },
 ];
