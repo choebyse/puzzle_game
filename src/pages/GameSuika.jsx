@@ -88,13 +88,13 @@ export default function GameSuika() {
         if (
           bodyA.label !== 'fruit' || bodyB.label !== 'fruit' ||
           bodyA.fruitIndex !== bodyB.fruitIndex ||
-          mergedRef.current.has(bodyA.id) || mergedRef.current.has(bodyB.id) ||
-          bodyA.fruitIndex >= FRUITS.length - 1
+          mergedRef.current.has(bodyA.id) || mergedRef.current.has(bodyB.id)
         ) return;
 
         mergedRef.current.add(bodyA.id);
         mergedRef.current.add(bodyB.id);
 
+        const isFinal = bodyA.fruitIndex >= FRUITS.length - 1;
         const newIndex = bodyA.fruitIndex + 1;
         const mx = (bodyA.position.x + bodyB.position.x) / 2;
         const my = (bodyA.position.y + bodyB.position.y) / 2;
@@ -103,15 +103,17 @@ export default function GameSuika() {
           if (gameOverRef.current) return;
           Matter.World.remove(world, bodyA);
           Matter.World.remove(world, bodyB);
-          const newBody = createFruitBody(mx, my, newIndex);
-          Matter.World.add(world, newBody);
           mergedRef.current.delete(bodyA.id);
           mergedRef.current.delete(bodyB.id);
-          scoreRef.current += FRUITS[newIndex].score;
+          scoreRef.current += FRUITS[bodyA.fruitIndex].score * 2;
           setScore(scoreRef.current);
-          if (!revealedRef.current.has(newIndex)) {
-            revealedRef.current = new Set([...revealedRef.current, newIndex]);
-            setRevealed(new Set(revealedRef.current));
+          if (!isFinal) {
+            const newBody = createFruitBody(mx, my, newIndex);
+            Matter.World.add(world, newBody);
+            if (!revealedRef.current.has(newIndex)) {
+              revealedRef.current = new Set([...revealedRef.current, newIndex]);
+              setRevealed(new Set(revealedRef.current));
+            }
           }
         }, 0);
       });
