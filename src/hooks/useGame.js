@@ -37,7 +37,6 @@ function reducer(state, action) {
         localStorage.setItem('2048-best', newBest);
       }
 
-      const won = !state.won && checkWin(newBoard);
       const gameOver = !hasMovesLeft(newBoard);
 
       return {
@@ -46,7 +45,7 @@ function reducer(state, action) {
         score: newScore,
         best: newBest,
         gameOver,
-        won: state.won || won,
+        won: false,
       };
     }
 

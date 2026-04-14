@@ -7,7 +7,7 @@ import GameOverlay from '../components/GameOverlay';
 import ConfirmModal from '../components/ConfirmModal';
 
 function shareScore(score, best) {
-  const text = `2048 퍼즐게임\n현재 점수: ${score} · 최고 점수: ${best}\n나도 도전해봐!\nhttps://puzzle-game-eight-weld.vercel.app`;
+  const text = `2048 퍼즐게임\n현재 점수: ${score} · 최고 점수: ${best}\n10000점 못넘기면 사람아님\nhttps://puzzle-game-eight-weld.vercel.app`;
   if (navigator.share) {
     navigator.share({ text });
   } else {

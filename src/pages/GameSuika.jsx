@@ -58,10 +58,13 @@ export default function GameSuika() {
   const scoreRef = useRef(0);
   const animRef = useRef(null);
 
+  const revealedRef = useRef(new Set([curFruitRef.current, nextFruitRef.current]));
+
   const [score, setScore] = useState(0);
   const [nextFruit, setNextFruit] = useState(nextFruitRef.current);
   const [gameOver, setGameOver] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [revealed, setRevealed] = useState(new Set([curFruitRef.current, nextFruitRef.current]));
   const navigate = useNavigate();
 
   const startGame = useCallback(() => {
@@ -106,6 +109,10 @@ export default function GameSuika() {
           mergedRef.current.delete(bodyB.id);
           scoreRef.current += FRUITS[newIndex].score;
           setScore(scoreRef.current);
+          if (!revealedRef.current.has(newIndex)) {
+            revealedRef.current = new Set([...revealedRef.current, newIndex]);
+            setRevealed(new Set(revealedRef.current));
+          }
         }, 0);
       });
     });
@@ -152,6 +159,8 @@ export default function GameSuika() {
 
         const img = fruitImages[body.fruitIndex];
         if (img && img.complete && img.naturalWidth > 0) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, -fruit.radius, -fruit.radius, fruit.radius * 2, fruit.radius * 2);
         } else {
           const grad = ctx.createRadialGradient(-fruit.radius * 0.3, -fruit.radius * 0.3, 0, 0, 0, fruit.radius);
@@ -180,7 +189,7 @@ export default function GameSuika() {
         ctx.beginPath();
         ctx.arc(0, 0, fruit.radius, 0, Math.PI * 2);
         ctx.strokeStyle = darkenColor(fruit.color, 30);
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 0.3;
         ctx.stroke();
         ctx.restore();
       });
@@ -204,24 +213,29 @@ export default function GameSuika() {
         ctx.globalAlpha = 0.75;
         ctx.save();
         ctx.translate(x, y);
-        const pGrad = ctx.createRadialGradient(-fruit.radius * 0.3, -fruit.radius * 0.3, 0, 0, 0, fruit.radius);
-        pGrad.addColorStop(0, lightenColor(fruit.color, 40));
-        pGrad.addColorStop(1, fruit.color);
         ctx.beginPath();
         ctx.arc(0, 0, fruit.radius, 0, Math.PI * 2);
-        ctx.fillStyle = pGrad;
-        ctx.fill();
+        ctx.clip();
+        const pImg = fruitImages[curFruitRef.current];
+        if (pImg && pImg.complete && pImg.naturalWidth > 0) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(pImg, -fruit.radius, -fruit.radius, fruit.radius * 2, fruit.radius * 2);
+        } else {
+          const pGrad = ctx.createRadialGradient(-fruit.radius * 0.3, -fruit.radius * 0.3, 0, 0, 0, fruit.radius);
+          pGrad.addColorStop(0, lightenColor(fruit.color, 40));
+          pGrad.addColorStop(1, fruit.color);
+          ctx.fillStyle = pGrad;
+          ctx.fill();
+        }
+        ctx.restore();
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.beginPath();
+        ctx.arc(0, 0, fruit.radius, 0, Math.PI * 2);
         ctx.strokeStyle = darkenColor(fruit.color, 30);
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 0.3;
         ctx.stroke();
-        ctx.fillStyle = 'white';
-        ctx.font = `bold ${Math.max(9, Math.floor(fruit.radius * 0.4))}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.4)';
-        ctx.shadowBlur = 3;
-        ctx.fillText(fruit.name, 0, 0);
-        ctx.shadowBlur = 0;
         ctx.restore();
         ctx.globalAlpha = 1;
       }
@@ -281,6 +295,13 @@ export default function GameSuika() {
     nextFruitRef.current = randomFruitIndex();
     setNextFruit(nextFruitRef.current);
 
+    // 다음 과일 공개
+    const next = nextFruitRef.current;
+    if (!revealedRef.current.has(next)) {
+      revealedRef.current = new Set([...revealedRef.current, next]);
+      setRevealed(new Set(revealedRef.current));
+    }
+
     setTimeout(() => { canDropRef.current = true; }, DROP_DELAY);
   }, []);
 
@@ -326,13 +347,18 @@ export default function GameSuika() {
             </div>
             <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#cdc1b4' }}>
               <p className="text-xs" style={{ color: '#776e65' }}>다음</p>
-              <div
-                className="rounded-full mx-auto mt-1"
-                style={{
-                  width: 24, height: 24,
-                  backgroundColor: FRUITS[nextFruit].color,
-                }}
-              />
+              {FRUITS[nextFruit].image ? (
+                <img
+                  src={FRUITS[nextFruit].image}
+                  className="rounded-full mx-auto mt-1 object-cover"
+                  style={{ width: 24, height: 24 }}
+                />
+              ) : (
+                <div
+                  className="rounded-full mx-auto mt-1"
+                  style={{ width: 24, height: 24, backgroundColor: FRUITS[nextFruit].color }}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -365,7 +391,6 @@ export default function GameSuika() {
         </div>
 
         <div className="flex items-center justify-between mt-3">
-          <p className="text-xs" style={{ color: '#bbada0' }}>터치하여 떨어뜨리기</p>
           <button
             onClick={() => setShowConfirm(true)}
             className="text-xs font-bold"
@@ -373,6 +398,24 @@ export default function GameSuika() {
           >
             ← 메인으로
           </button>
+          <div className="flex items-center gap-2">
+            <p className="text-xs" style={{ color: '#bbada0' }}>터치하여 떨어뜨리기</p>
+            <button
+              onClick={() => {
+                const text = `벌크업 게임\n점수: ${score}\n너가 해봐라 돼지들아\nhttps://puzzle-game-eight-weld.vercel.app`;
+                if (navigator.share) {
+                  navigator.share({ text });
+                } else {
+                  navigator.clipboard.writeText(text);
+                  alert('링크가 복사됐습니다!');
+                }
+              }}
+              className="px-3 py-1.5 rounded-md text-xs font-bold"
+              style={{ backgroundColor: '#FEE500', color: '#3C1E1E' }}
+            >
+              점수 공유
+            </button>
+          </div>
         </div>
 
         {/* 합체 순서 */}
@@ -381,10 +424,24 @@ export default function GameSuika() {
           <div className="flex items-center flex-wrap gap-y-1">
             {FRUITS.map((fruit, i) => (
               <div key={i} className="flex items-center">
-                <div
-                  className="rounded-full w-7 h-7"
-                  style={{ backgroundColor: fruit.color }}
-                />
+                {revealed.has(i) ? (
+                  fruit.image ? (
+                    <img
+                      src={fruit.image}
+                      className="rounded-full object-cover"
+                      style={{ width: 28, height: 28 }}
+                    />
+                  ) : (
+                    <div className="rounded-full w-7 h-7" style={{ backgroundColor: fruit.color }} />
+                  )
+                ) : (
+                  <div
+                    className="rounded-full w-7 h-7 flex items-center justify-center"
+                    style={{ backgroundColor: '#cdc1b4' }}
+                  >
+                    <span style={{ fontSize: 10, color: '#fff', fontWeight: 'bold' }}>?</span>
+                  </div>
+                )}
                 {i < FRUITS.length - 1 && (
                   <span className="mx-0.5" style={{ fontSize: 8, color: '#bbada0' }}>→</span>
                 )}
