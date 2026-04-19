@@ -298,8 +298,29 @@ export default function GameSnake() {
   const touchStart = useRef(null);
   const RANKS = ['🥇', '🥈', '🥉', '4.', '5.', '6.', '7.', '8.', '9.', '10.'];
 
+  function handleTouchStart(e) {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  function handleTouchEnd(e) {
+    if (!touchStart.current || screenRef.current !== 'game') return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    const cur = dirRef.current;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 15 && cur.x !== -1) nextDirRef.current = { x: 1, y: 0 };
+      if (dx < -15 && cur.x !== 1) nextDirRef.current = { x: -1, y: 0 };
+    } else {
+      if (dy > 15 && cur.y !== -1) nextDirRef.current = { x: 0, y: 1 };
+      if (dy < -15 && cur.y !== 1) nextDirRef.current = { x: 0, y: -1 };
+    }
+    touchStart.current = null;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef', touchAction: 'none' }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="w-full max-w-sm px-4 flex flex-col items-center">
 
         <GameHeader title="스네이크" />
@@ -316,20 +337,6 @@ export default function GameSnake() {
             ref={canvasRef} width={W} height={H}
             className="rounded-xl border w-full"
             style={{ borderColor: '#d3cdc0', opacity: screen === 'dead' ? 0.35 : 1 }}
-            onTouchStart={e => { touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
-            onTouchEnd={e => {
-              if (!touchStart.current || screenRef.current !== 'game') return;
-              const dx = e.changedTouches[0].clientX - touchStart.current.x;
-              const dy = e.changedTouches[0].clientY - touchStart.current.y;
-              const cur = dirRef.current;
-              if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 15 && cur.x !== -1) nextDirRef.current = { x: 1, y: 0 };
-                if (dx < -15 && cur.x !== 1) nextDirRef.current = { x: -1, y: 0 };
-              } else {
-                if (dy > 15 && cur.y !== -1) nextDirRef.current = { x: 0, y: 1 };
-                if (dy < -15 && cur.y !== 1) nextDirRef.current = { x: 0, y: -1 };
-              }
-            }}
           />
 
           {/* 오버레이: 타이틀 */}
