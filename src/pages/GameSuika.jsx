@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Matter from 'matter-js';
-import { FRUITS, randomFruitIndex } from '../utils/suikaLogic';
-import ConfirmModal from '../components/ConfirmModal';
+import { useEffect, useRef, useState, useCallback } from "react";
+import Matter from "matter-js";
+import { FRUITS, randomFruitIndex } from "../utils/suikaLogic";
+import GameHeader from "../components/GameHeader";
+import GameFooter from "../components/GameFooter";
 
 function lightenColor(hex, amount) {
   const num = parseInt(hex.slice(1), 16);
@@ -21,7 +21,7 @@ function darkenColor(hex, amount) {
 }
 
 // 이미지 미리 로드
-const fruitImages = FRUITS.map(fruit => {
+const fruitImages = FRUITS.map((fruit) => {
   if (!fruit.image) return null;
   const img = new Image();
   img.src = fruit.image;
@@ -29,9 +29,9 @@ const fruitImages = FRUITS.map(fruit => {
 });
 
 const W = 300;
-const H = 380;
+const H = 400;
 const WALL = 20;
-const DANGER_Y = 75;
+const DANGER_Y = 70;
 const DROP_DELAY = 600;
 
 function createFruitBody(x, y, index) {
@@ -40,7 +40,7 @@ function createFruitBody(x, y, index) {
     friction: 0.5,
     frictionAir: 0.01,
     density: 0.002,
-    label: 'fruit',
+    label: "fruit",
   });
   body.fruitIndex = index;
   return body;
@@ -58,19 +58,23 @@ export default function GameSuika() {
   const scoreRef = useRef(0);
   const animRef = useRef(null);
 
-  const revealedRef = useRef(new Set([curFruitRef.current, nextFruitRef.current]));
+  const revealedRef = useRef(
+    new Set([curFruitRef.current, nextFruitRef.current]),
+  );
 
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(Number(localStorage.getItem('suika-best') || 0));
+  const [best, setBest] = useState(
+    Number(localStorage.getItem("suika-best") || 0),
+  );
   const [nextFruit, setNextFruit] = useState(nextFruitRef.current);
   const [gameOver, setGameOver] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [revealed, setRevealed] = useState(new Set([curFruitRef.current, nextFruitRef.current]));
-  const navigate = useNavigate();
+  const [revealed, setRevealed] = useState(
+    new Set([curFruitRef.current, nextFruitRef.current]),
+  );
 
   const startGame = useCallback(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     const engine = Matter.Engine.create({ gravity: { y: 1.5 } });
     engineRef.current = engine;
@@ -78,19 +82,31 @@ export default function GameSuika() {
 
     // 벽 생성
     Matter.World.add(world, [
-      Matter.Bodies.rectangle(W / 2, H + WALL / 2, W + WALL * 2, WALL, { isStatic: true, label: 'wall' }),
-      Matter.Bodies.rectangle(-WALL / 2, H / 2, WALL, H * 2, { isStatic: true, label: 'wall' }),
-      Matter.Bodies.rectangle(W + WALL / 2, H / 2, WALL, H * 2, { isStatic: true, label: 'wall' }),
+      Matter.Bodies.rectangle(W / 2, H + WALL / 2, W + WALL * 2, WALL, {
+        isStatic: true,
+        label: "wall",
+      }),
+      Matter.Bodies.rectangle(-WALL / 2, H / 2, WALL, H * 2, {
+        isStatic: true,
+        label: "wall",
+      }),
+      Matter.Bodies.rectangle(W + WALL / 2, H / 2, WALL, H * 2, {
+        isStatic: true,
+        label: "wall",
+      }),
     ]);
 
     // 충돌 → 합치기
-    Matter.Events.on(engine, 'collisionStart', (event) => {
+    Matter.Events.on(engine, "collisionStart", (event) => {
       event.pairs.forEach(({ bodyA, bodyB }) => {
         if (
-          bodyA.label !== 'fruit' || bodyB.label !== 'fruit' ||
+          bodyA.label !== "fruit" ||
+          bodyB.label !== "fruit" ||
           bodyA.fruitIndex !== bodyB.fruitIndex ||
-          mergedRef.current.has(bodyA.id) || mergedRef.current.has(bodyB.id)
-        ) return;
+          mergedRef.current.has(bodyA.id) ||
+          mergedRef.current.has(bodyB.id)
+        )
+          return;
 
         mergedRef.current.add(bodyA.id);
         mergedRef.current.add(bodyB.id);
@@ -106,10 +122,15 @@ export default function GameSuika() {
           Matter.World.remove(world, bodyB);
           mergedRef.current.delete(bodyA.id);
           mergedRef.current.delete(bodyB.id);
-          scoreRef.current += isFinal ? FRUITS[bodyA.fruitIndex].score * 2 : FRUITS[newIndex].score;
+          scoreRef.current += isFinal
+            ? FRUITS[bodyA.fruitIndex].score * 2
+            : FRUITS[newIndex].score;
           setScore(scoreRef.current);
-          const newBest = Math.max(scoreRef.current, Number(localStorage.getItem('suika-best') || 0));
-          localStorage.setItem('suika-best', newBest);
+          const newBest = Math.max(
+            scoreRef.current,
+            Number(localStorage.getItem("suika-best") || 0),
+          );
+          localStorage.setItem("suika-best", newBest);
           setBest(newBest);
           if (!isFinal) {
             const newBody = createFruitBody(mx, my, newIndex);
@@ -134,11 +155,11 @@ export default function GameSuika() {
       ctx.clearRect(0, 0, W, H);
 
       // 배경
-      ctx.fillStyle = '#fff9f0';
+      ctx.fillStyle = "#fff9f0";
       ctx.fillRect(0, 0, W, H);
 
       // 위험선
-      ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+      ctx.strokeStyle = "rgba(231, 76, 60, 0.5)";
       ctx.setLineDash([6, 4]);
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -149,8 +170,8 @@ export default function GameSuika() {
 
       // 과일 렌더링
       const bodies = Matter.Composite.allBodies(world);
-      bodies.forEach(body => {
-        if (body.label !== 'fruit') return;
+      bodies.forEach((body) => {
+        if (body.label !== "fruit") return;
         const fruit = FRUITS[body.fruitIndex];
         const { x, y } = body.position;
         const angle = body.angle;
@@ -166,21 +187,34 @@ export default function GameSuika() {
         const img = fruitImages[body.fruitIndex];
         if (img && img.complete && img.naturalWidth > 0) {
           ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, -fruit.radius, -fruit.radius, fruit.radius * 2, fruit.radius * 2);
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(
+            img,
+            -fruit.radius,
+            -fruit.radius,
+            fruit.radius * 2,
+            fruit.radius * 2,
+          );
         } else {
-          const grad = ctx.createRadialGradient(-fruit.radius * 0.3, -fruit.radius * 0.3, 0, 0, 0, fruit.radius);
+          const grad = ctx.createRadialGradient(
+            -fruit.radius * 0.3,
+            -fruit.radius * 0.3,
+            0,
+            0,
+            0,
+            fruit.radius,
+          );
           grad.addColorStop(0, lightenColor(fruit.color, 40));
           grad.addColorStop(1, fruit.color);
           ctx.fillStyle = grad;
           ctx.fill();
 
           const fontSize = Math.max(9, Math.floor(fruit.radius * 0.4));
-          ctx.fillStyle = 'white';
+          ctx.fillStyle = "white";
           ctx.font = `bold ${fontSize}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.shadowColor = 'rgba(0,0,0,0.4)';
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.shadowColor = "rgba(0,0,0,0.4)";
           ctx.shadowBlur = 3;
           ctx.fillText(fruit.name, 0, 0);
           ctx.shadowBlur = 0;
@@ -203,11 +237,14 @@ export default function GameSuika() {
       // 현재 과일 미리보기
       if (canDropRef.current) {
         const fruit = FRUITS[curFruitRef.current];
-        const x = Math.max(fruit.radius, Math.min(W - fruit.radius, curXRef.current));
+        const x = Math.max(
+          fruit.radius,
+          Math.min(W - fruit.radius, curXRef.current),
+        );
         const y = fruit.radius + 5;
 
         // 가이드 라인
-        ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+        ctx.strokeStyle = "rgba(0,0,0,0.08)";
         ctx.setLineDash([4, 4]);
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -225,10 +262,23 @@ export default function GameSuika() {
         const pImg = fruitImages[curFruitRef.current];
         if (pImg && pImg.complete && pImg.naturalWidth > 0) {
           ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(pImg, -fruit.radius, -fruit.radius, fruit.radius * 2, fruit.radius * 2);
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(
+            pImg,
+            -fruit.radius,
+            -fruit.radius,
+            fruit.radius * 2,
+            fruit.radius * 2,
+          );
         } else {
-          const pGrad = ctx.createRadialGradient(-fruit.radius * 0.3, -fruit.radius * 0.3, 0, 0, 0, fruit.radius);
+          const pGrad = ctx.createRadialGradient(
+            -fruit.radius * 0.3,
+            -fruit.radius * 0.3,
+            0,
+            0,
+            0,
+            fruit.radius,
+          );
           pGrad.addColorStop(0, lightenColor(fruit.color, 40));
           pGrad.addColorStop(1, fruit.color);
           ctx.fillStyle = pGrad;
@@ -247,10 +297,11 @@ export default function GameSuika() {
       }
 
       // 게임오버 감지
-      const above = bodies.filter(b =>
-        b.label === 'fruit' &&
-        !mergedRef.current.has(b.id) &&
-        b.position.y - FRUITS[b.fruitIndex].radius < DANGER_Y
+      const above = bodies.filter(
+        (b) =>
+          b.label === "fruit" &&
+          !mergedRef.current.has(b.id) &&
+          b.position.y - FRUITS[b.fruitIndex].radius < DANGER_Y,
       );
       if (above.length > 0) {
         gameOverTimer++;
@@ -283,7 +334,8 @@ export default function GameSuika() {
   }, [startGame]);
 
   const drop = useCallback((clientX) => {
-    if (!canDropRef.current || gameOverRef.current || !engineRef.current) return;
+    if (!canDropRef.current || gameOverRef.current || !engineRef.current)
+      return;
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const scaleX = W / rect.width;
@@ -308,7 +360,9 @@ export default function GameSuika() {
       setRevealed(new Set(revealedRef.current));
     }
 
-    setTimeout(() => { canDropRef.current = true; }, DROP_DELAY);
+    setTimeout(() => {
+      canDropRef.current = true;
+    }, DROP_DELAY);
   }, []);
 
   const updateX = useCallback((clientX) => {
@@ -340,23 +394,42 @@ export default function GameSuika() {
   }, [startGame]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: "#faf8ef" }}
+    >
       <div className="w-full max-w-sm px-4">
-        <p className="text-xs mb-1" style={{ color: '#bbada0' }}>개발자: 김진만</p>
-
+        <GameHeader />
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold" style={{ color: '#776e65' }}>벌크업 게임</h1>
+          <h1 className="text-3xl font-bold" style={{ color: "#776e65" }}>
+            벌크업 게임
+          </h1>
           <div className="flex items-center gap-2">
-            <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#bbada0' }}>
+            <div
+              className="px-3 py-1 rounded-md text-center"
+              style={{ backgroundColor: "#bbada0" }}
+            >
               <p className="text-xs text-white">점수</p>
               <p className="text-lg font-bold text-white">{score}</p>
             </div>
-            <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#cdc1b4' }}>
-              <p className="text-xs" style={{ color: '#776e65' }}>최고</p>
-              <p className="text-lg font-bold" style={{ color: '#776e65' }}>{best}</p>
+            <div
+              className="px-3 py-1 rounded-md text-center"
+              style={{ backgroundColor: "#cdc1b4" }}
+            >
+              <p className="text-xs" style={{ color: "#776e65" }}>
+                최고
+              </p>
+              <p className="text-lg font-bold" style={{ color: "#776e65" }}>
+                {best}
+              </p>
             </div>
-            <div className="px-3 py-1 rounded-md text-center" style={{ backgroundColor: '#cdc1b4' }}>
-              <p className="text-xs" style={{ color: '#776e65' }}>다음</p>
+            <div
+              className="px-3 py-1 rounded-md text-center"
+              style={{ backgroundColor: "#cdc1b4" }}
+            >
+              <p className="text-xs" style={{ color: "#776e65" }}>
+                다음
+              </p>
               {FRUITS[nextFruit].image ? (
                 <img
                   src={FRUITS[nextFruit].image}
@@ -366,33 +439,56 @@ export default function GameSuika() {
               ) : (
                 <div
                   className="rounded-full mx-auto mt-1"
-                  style={{ width: 24, height: 24, backgroundColor: FRUITS[nextFruit].color }}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: FRUITS[nextFruit].color,
+                  }}
                 />
               )}
             </div>
           </div>
         </div>
 
-        <div className="relative rounded-lg overflow-hidden" style={{ border: '3px solid #bbada0' }}>
+        <div
+          className="relative rounded-lg overflow-hidden"
+          style={{ border: "3px solid #bbada0" }}
+        >
           <canvas
             ref={canvasRef}
             width={W}
             height={H}
             className="w-full block"
-            style={{ touchAction: 'none' }}
-            onMouseMove={e => updateX(e.clientX)}
-            onMouseDown={e => drop(e.clientX)}
-            onTouchMove={e => { e.preventDefault(); updateX(e.touches[0].clientX); }}
-            onTouchEnd={e => { e.preventDefault(); drop(e.changedTouches[0].clientX); }}
+            style={{ touchAction: "none" }}
+            onMouseMove={(e) => updateX(e.clientX)}
+            onMouseDown={(e) => drop(e.clientX)}
+            onTouchMove={(e) => {
+              e.preventDefault();
+              updateX(e.touches[0].clientX);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              drop(e.changedTouches[0].clientX);
+            }}
           />
           {gameOver && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(238,228,218,0.88)' }}>
-              <p className="text-3xl font-bold mb-1" style={{ color: '#776e65' }}>게임 오버</p>
-              <p className="text-lg mb-5" style={{ color: '#776e65' }}>점수: {score}</p>
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{ backgroundColor: "rgba(238,228,218,0.88)" }}
+            >
+              <p
+                className="text-3xl font-bold mb-1"
+                style={{ color: "#776e65" }}
+              >
+                게임 오버
+              </p>
+              <p className="text-lg mb-5" style={{ color: "#776e65" }}>
+                점수: {score}
+              </p>
               <button
                 onClick={restart}
                 className="px-6 py-2 rounded-md text-white font-bold"
-                style={{ backgroundColor: '#8f7a66' }}
+                style={{ backgroundColor: "#8f7a66" }}
               >
                 다시 시작
               </button>
@@ -400,37 +496,18 @@ export default function GameSuika() {
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-3">
-          <button
-            onClick={() => setShowConfirm(true)}
-            className="text-xs font-bold"
-            style={{ color: '#776e65' }}
-          >
-            ← 메인으로
-          </button>
-          <div className="flex items-center gap-2">
-            <p className="text-xs" style={{ color: '#bbada0' }}>터치하여 떨어뜨리기</p>
-            <button
-              onClick={() => {
-                const text = `벌크업 게임\n점수: ${score}\n너가 해봐라 돼지들아\nhttps://puzzle-game-eight-weld.vercel.app`;
-                if (navigator.share) {
-                  navigator.share({ text });
-                } else {
-                  navigator.clipboard.writeText(text);
-                  alert('링크가 복사됐습니다!');
-                }
-              }}
-              className="px-3 py-1.5 rounded-md text-xs font-bold"
-              style={{ backgroundColor: '#FEE500', color: '#3C1E1E' }}
-            >
-              점수 공유
-            </button>
-          </div>
-        </div>
+        <p className="text-xs mt-3" style={{ color: "#bbada0" }}>터치하여 떨어뜨리기</p>
+
+        <GameFooter
+          shareText={`벌크업 게임\n점수: ${score}\n너가 해봐라 돼지들아\nhttps://puzzle-game-eight-weld.vercel.app`}
+          shareLabel="점수 공유"
+        />
 
         {/* 합체 순서 */}
         <div className="mt-2">
-          <p className="text-xs mb-2" style={{ color: '#bbada0' }}>합체 순서</p>
+          <p className="text-xs mb-2" style={{ color: "#bbada0" }}>
+            합체 순서
+          </p>
           <div className="flex items-center flex-wrap gap-y-1">
             {FRUITS.map((fruit, i) => (
               <div key={i} className="flex items-center">
@@ -442,31 +519,40 @@ export default function GameSuika() {
                       style={{ width: 28, height: 28 }}
                     />
                   ) : (
-                    <div className="rounded-full w-7 h-7" style={{ backgroundColor: fruit.color }} />
+                    <div
+                      className="rounded-full w-7 h-7"
+                      style={{ backgroundColor: fruit.color }}
+                    />
                   )
                 ) : (
                   <div
                     className="rounded-full w-7 h-7 flex items-center justify-center"
-                    style={{ backgroundColor: '#cdc1b4' }}
+                    style={{ backgroundColor: "#cdc1b4" }}
                   >
-                    <span style={{ fontSize: 10, color: '#fff', fontWeight: 'bold' }}>?</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        color: "#fff",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ?
+                    </span>
                   </div>
                 )}
                 {i < FRUITS.length - 1 && (
-                  <span className="mx-0.5" style={{ fontSize: 8, color: '#bbada0' }}>→</span>
+                  <span
+                    className="mx-0.5"
+                    style={{ fontSize: 8, color: "#bbada0" }}
+                  >
+                    →
+                  </span>
                 )}
               </div>
             ))}
           </div>
         </div>
 
-        {showConfirm && (
-          <ConfirmModal
-            message="게임을 종료하고 메인으로 돌아갈까요?"
-            onConfirm={() => navigate('/')}
-            onCancel={() => setShowConfirm(false)}
-          />
-        )}
       </div>
     </div>
   );

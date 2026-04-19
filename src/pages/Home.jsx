@@ -13,6 +13,12 @@ const GAMES = [
     description: '수박게임 비스무리한 거 · 멍청이들을 떨어뜨려 합쳐보세요',
     bg: '#8fbf6a',
   },
+  {
+    path: '/snake',
+    title: '스네이크',
+    description: '사과를 먹어 뱀을 키우세요 · 모든 칸을 채우면 클리어!',
+    bg: '#27ae60',
+  },
 ];
 
 export default function Home() {

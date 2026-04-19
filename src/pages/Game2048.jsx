@@ -1,34 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useGame } from '../hooks/useGame';
 import Board from '../components/Board';
 import ScoreBoard from '../components/ScoreBoard';
 import GameOverlay from '../components/GameOverlay';
-import ConfirmModal from '../components/ConfirmModal';
+import GameHeader from '../components/GameHeader';
+import GameFooter from '../components/GameFooter';
 
-function shareScore(score, best) {
-  const text = `2048 퍼즐게임\n현재 점수: ${score} · 최고 점수: ${best}\n10000점 못넘기면 사람아님\nhttps://puzzle-game-eight-weld.vercel.app`;
-  if (navigator.share) {
-    navigator.share({ text });
-  } else {
-    navigator.clipboard.writeText(text);
-    alert('링크가 복사됐습니다!');
-  }
-}
 
 export default function Game2048() {
   const { board, score, best, gameOver, won, keepPlaying, restart, onKeepPlaying, gameId } = useGame();
-  const navigate = useNavigate();
-  const [showConfirm, setShowConfirm] = useState(false);
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
       <div className="w-full max-w-sm px-4">
 
-        {/* 개발자 */}
-        <p className="text-xs mb-1" style={{ color: '#bbada0' }}>개발자: 김진만</p>
-
         {/* 헤더 */}
+        <GameHeader />
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-5xl font-bold" style={{ color: '#776e65' }}>
             2048
@@ -62,36 +48,12 @@ export default function Game2048() {
           />
         </div>
 
-        {/* 점수 공유 + 조작 안내 */}
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-xs" style={{ color: '#bbada0' }}>
-            방향키로 이동 · 모바일은 스와이프
-          </p>
-          <button
-            onClick={() => shareScore(score, best)}
-            className="px-3 py-1.5 rounded-md text-white text-xs font-bold"
-            style={{ backgroundColor: '#FEE500', color: '#3C1E1E' }}
-          >
-            점수 공유
-          </button>
-        </div>
+        <p className="text-xs mt-4" style={{ color: '#bbada0' }}>방향키로 이동 · 모바일은 스와이프</p>
 
-        {/* 메인으로 */}
-        <button
-          onClick={() => setShowConfirm(true)}
-          className="mt-4 text-xs font-bold"
-          style={{ color: '#776e65' }}
-        >
-          ← 메인으로
-        </button>
-
-        {showConfirm && (
-          <ConfirmModal
-            message="게임을 종료하고 메인으로 돌아갈까요?"
-            onConfirm={() => navigate('/')}
-            onCancel={() => setShowConfirm(false)}
-          />
-        )}
+        <GameFooter
+          shareText={`2048 퍼즐게임\n현재 점수: ${score} · 최고 점수: ${best}\n10000점 못넘기면 사람아님\nhttps://puzzle-game-eight-weld.vercel.app`}
+          shareLabel="점수 공유"
+        />
 
       </div>
     </div>
