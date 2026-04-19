@@ -19,6 +19,12 @@ const GAMES = [
     description: '사과를 먹어 뱀을 키우세요 · 모든 칸을 채우면 클리어!',
     bg: '#27ae60',
   },
+  {
+    path: '/stroop',
+    title: '스트룹 컬러',
+    description: '글자 색을 골라라 · 60초 안에 최고 점수 도전!',
+    bg: '#9b59b6',
+  },
 ];
 
 export default function Home() {
@@ -68,6 +74,7 @@ export default function Home() {
           <p>※ 앱으로 설치 가능</p>
           <p>아이폰: Safari 공유 버튼 → 홈 화면에 추가</p>
           <p>안드로이드: Chrome 메뉴 → 앱 설치</p>
+          <p className="mt-2">업데이트: {__BUILD_TIME__}</p>
         </div>
 
       </div>
