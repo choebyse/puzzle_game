@@ -6,7 +6,7 @@ const COLORS = [
   { name: "빨강", hex: "#e74c3c" },
   { name: "파랑", hex: "#3498db" },
   { name: "초록", hex: "#27ae60" },
-  { name: "노랑", hex: "#f39c12" },
+  { name: "검정", hex: "#2c3e50" },
   { name: "보라", hex: "#9b59b6" },
   { name: "주황", hex: "#e67e22" },
 ];

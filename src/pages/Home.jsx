@@ -32,7 +32,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
-      <div className="w-full max-w-sm px-4">
+      <div className="w-full max-w-sm px-4 py-6">
 
         <p className="text-xs mb-1" style={{ color: '#bbada0' }}>개발자: 김진만</p>
 
@@ -56,12 +56,12 @@ export default function Home() {
         </div>
         <p className="text-sm mb-8" style={{ color: '#bbada0' }}>플레이할 게임을 선택하세요</p>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 overflow-y-auto" style={{ maxHeight: '55vh' }}>
           {GAMES.map((game) => (
             <button
               key={game.path}
               onClick={() => navigate(game.path)}
-              className="w-full py-6 rounded-xl text-white text-left px-6"
+              className="w-full py-6 rounded-xl text-white text-left px-6 flex-shrink-0"
               style={{ backgroundColor: game.bg }}
             >
               <p className="text-2xl font-bold">{game.title}</p>
