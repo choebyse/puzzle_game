@@ -1,20 +1,30 @@
+import { useState, useEffect, useRef } from 'react';
 import { useGame } from '../hooks/useGame';
 import Board from '../components/Board';
 import ScoreBoard from '../components/ScoreBoard';
 import GameOverlay from '../components/GameOverlay';
 import GameHeader from '../components/GameHeader';
 import GameFooter from '../components/GameFooter';
-
+import RankingModal from '../components/RankingModal';
+import { submitScore } from '../utils/rankingService';
 
 export default function Game2048() {
   const { board, score, best, gameOver, won, keepPlaying, restart, onKeepPlaying, gameId } = useGame();
+  const [showRanking, setShowRanking] = useState(false);
+  const prevBestRef = useRef(best);
+
+  useEffect(() => {
+    if (best > prevBestRef.current) {
+      prevBestRef.current = best;
+      submitScore('game2048', { score: best });
+    }
+  }, [best]);
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
       <div className="w-full max-w-sm px-4">
 
-        {/* 헤더 */}
-        <GameHeader />
+        <GameHeader onRanking={() => setShowRanking(true)} />
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-5xl font-bold" style={{ color: '#776e65' }}>
             2048
@@ -22,7 +32,6 @@ export default function Game2048() {
           <ScoreBoard score={score} best={best} />
         </div>
 
-        {/* 설명 + 새 게임 버튼 */}
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm" style={{ color: '#776e65' }}>
             같은 숫자를 합쳐 최고점을 노리세요!
@@ -36,7 +45,6 @@ export default function Game2048() {
           </button>
         </div>
 
-        {/* 게임 보드 */}
         <div className="relative">
           <Board key={gameId} board={board} />
           <GameOverlay
@@ -56,6 +64,10 @@ export default function Game2048() {
         />
 
       </div>
+
+      {showRanking && (
+        <RankingModal gameId="game2048" onClose={() => setShowRanking(false)} />
+      )}
     </div>
   );
 }

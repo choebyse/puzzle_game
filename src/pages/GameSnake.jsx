@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import GameHeader from '../components/GameHeader';
 import GameFooter from '../components/GameFooter';
+import RankingModal from '../components/RankingModal';
+import { submitScore } from '../utils/rankingService';
 
 const COLS = 11;
 const ROWS = 9;
@@ -48,6 +50,7 @@ export default function GameSnake() {
   const [elapsed, setElapsed] = useState(0);
   const [records, setRecords] = useState(loadRecords);
   const [lastRecord, setLastRecord] = useState(null);
+  const [showRanking, setShowRanking] = useState(false);
 
   const snakeRef = useRef(initSnake());
   const prevSnakeRef = useRef(null);       // 보간용 이전 위치
@@ -209,6 +212,7 @@ export default function GameSnake() {
         saveRecords(recs);
         setRecords(recs);
         setLastRecord(rec);
+        submitScore('snake', { time });
         setElapsed(time);
         screenRef.current = 'clear';
         setScreen('clear');
@@ -334,7 +338,7 @@ export default function GameSnake() {
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
       <div className="w-full max-w-sm px-4 flex flex-col items-center">
 
-        <GameHeader title="스네이크" />
+        <GameHeader title="스네이크" onRanking={() => setShowRanking(true)} />
 
         {/* 항상 표시: 타이머 + 사과 */}
         <div className="w-full flex justify-between items-center mb-2">
@@ -423,6 +427,10 @@ export default function GameSnake() {
         />
 
       </div>
+
+      {showRanking && (
+        <RankingModal gameId="snake" isTimeMode onClose={() => setShowRanking(false)} />
+      )}
     </div>
   );
 }

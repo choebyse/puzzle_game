@@ -3,6 +3,8 @@ import Matter from "matter-js";
 import { FRUITS, randomFruitIndex } from "../utils/suikaLogic";
 import GameHeader from "../components/GameHeader";
 import GameFooter from "../components/GameFooter";
+import RankingModal from "../components/RankingModal";
+import { submitScore } from "../utils/rankingService";
 
 function lightenColor(hex, amount) {
   const num = parseInt(hex.slice(1), 16);
@@ -68,6 +70,7 @@ export default function GameSuika() {
   );
   const [nextFruit, setNextFruit] = useState(nextFruitRef.current);
   const [gameOver, setGameOver] = useState(false);
+  const [showRanking, setShowRanking] = useState(false);
   const [revealed, setRevealed] = useState(
     new Set([curFruitRef.current, nextFruitRef.current]),
   );
@@ -132,6 +135,7 @@ export default function GameSuika() {
           );
           localStorage.setItem("suika-best", newBest);
           setBest(newBest);
+          submitScore('suika', { score: newBest });
           if (!isFinal) {
             const newBody = createFruitBody(mx, my, newIndex);
             Matter.World.add(world, newBody);
@@ -399,7 +403,7 @@ export default function GameSuika() {
       style={{ backgroundColor: "#faf8ef" }}
     >
       <div className="w-full max-w-sm px-4">
-        <GameHeader />
+        <GameHeader onRanking={() => setShowRanking(true)} />
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold" style={{ color: "#776e65" }}>
             벌크업 게임
@@ -554,6 +558,10 @@ export default function GameSuika() {
         </div>
 
       </div>
+
+      {showRanking && (
+        <RankingModal gameId="suika" onClose={() => setShowRanking(false)} />
+      )}
     </div>
   );
 }

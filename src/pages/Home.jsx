@@ -1,4 +1,7 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getNickname } from '../utils/rankingService';
+import NicknameModal from '../components/NicknameModal';
 
 const GAMES = [
   {
@@ -29,12 +32,31 @@ const GAMES = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const [nickname, setNickname] = useState(getNickname);
+  const [showNickname, setShowNickname] = useState(false);
+
+  // 닉네임 없으면 첫 방문 시 자동으로 모달 표시
+  useEffect(() => {
+    if (!getNickname()) setShowNickname(true);
+  }, []);
+
+  function handleNicknameClose() {
+    setNickname(getNickname());
+    setShowNickname(false);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>
       <div className="w-full max-w-sm px-4 py-6">
 
-        <p className="text-xs mb-1" style={{ color: '#bbada0' }}>개발자: 김진만</p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs" style={{ color: '#bbada0' }}>개발자: 김진만</p>
+          <button onClick={() => navigate('/ranking')}
+            className="text-xs font-bold px-3 py-1 rounded-lg"
+            style={{ backgroundColor: '#ede8dc', color: '#8f7a66' }}>
+            🏆 랭킹
+          </button>
+        </div>
 
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-4xl font-bold" style={{ color: '#776e65' }}>Game Center</h1>
@@ -54,7 +76,27 @@ export default function Home() {
             게임 공유
           </button>
         </div>
-        <p className="text-sm mb-8" style={{ color: '#bbada0' }}>플레이할 게임을 선택하세요</p>
+
+        {/* 닉네임 표시 */}
+        <div className="flex items-center gap-2 mb-6">
+          {nickname ? (
+            <>
+              <span className="text-sm" style={{ color: '#bbada0' }}>플레이어:</span>
+              <span className="text-sm font-bold" style={{ color: '#776e65' }}>{nickname}</span>
+              <button onClick={() => setShowNickname(true)}
+                className="text-xs px-2 py-0.5 rounded-md"
+                style={{ backgroundColor: '#ede8dc', color: '#8f7a66' }}>
+                변경
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setShowNickname(true)}
+              className="text-sm font-bold px-3 py-1 rounded-lg"
+              style={{ backgroundColor: '#ede8dc', color: '#8f7a66' }}>
+              + 닉네임 설정 (랭킹 등록용)
+            </button>
+          )}
+        </div>
 
         <div className="flex flex-col gap-4 overflow-y-auto" style={{ maxHeight: '55vh' }}>
           {GAMES.map((game) => (
@@ -78,6 +120,10 @@ export default function Home() {
         </div>
 
       </div>
+
+      {showNickname && (
+        <NicknameModal current={nickname} onClose={handleNicknameClose} />
+      )}
     </div>
   );
 }

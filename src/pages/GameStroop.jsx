@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import GameHeader from "../components/GameHeader";
 import GameFooter from "../components/GameFooter";
+import RankingModal from "../components/RankingModal";
+import { submitScore } from "../utils/rankingService";
 
 const COLORS = [
   { name: "빨강", hex: "#e74c3c" },
@@ -51,6 +53,7 @@ export default function GameStroop() {
   const [isNewBest, setIsNewBest] = useState(false);
   const [bgColor, setBgColor] = useState("#f0ede4");
   const [btnBgs, setBtnBgs] = useState(COLORS.map(() => "#f0ede4"));
+  const [showRanking, setShowRanking] = useState(false);
 
   const timerRef = useRef(null);
   const scoreRef = useRef(0);
@@ -88,6 +91,7 @@ export default function GameStroop() {
       saveBest(fs);
       setBest(fs);
       setIsNewBest(true);
+      submitScore('stroop', { score: fs });
     } else {
       setIsNewBest(false);
     }
@@ -131,7 +135,7 @@ export default function GameStroop() {
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#faf8ef" }}>
       <div className="w-full max-w-sm px-4">
 
-        <GameHeader title="스트룹 컬러" />
+        <GameHeader title="스트룹 컬러" onRanking={() => setShowRanking(true)} />
 
         {/* ── 타이틀 ── */}
         {screen === "title" && (
@@ -265,6 +269,10 @@ export default function GameStroop() {
         )}
 
       </div>
+
+      {showRanking && (
+        <RankingModal gameId="stroop" onClose={() => setShowRanking(false)} />
+      )}
     </div>
   );
 }
