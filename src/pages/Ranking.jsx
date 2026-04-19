@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { fetchRankings, getUserId } from '../utils/rankingService';
 
 const TABS = [
-  { id: 'game2048', label: '2048', isTimeMode: false },
-  { id: 'suika',    label: '벌크업', isTimeMode: false },
-  { id: 'stroop',   label: '스트룹', isTimeMode: false },
-  { id: 'snake',    label: '스네이크', isTimeMode: true },
+  { id: 'game2048', label: '2048',    isTimeMode: false },
+  { id: 'suika',    label: '벌크업',  isTimeMode: false },
+  { id: 'stroop',   label: '스트룹',  isTimeMode: false },
+  { id: 'snake',    label: '스네이크', isTimeMode: true, isSnakeMode: true },
 ];
 
 const RANKS = ['🥇', '🥈', '🥉', '4.', '5.', '6.', '7.', '8.', '9.', '10.'];
@@ -94,7 +94,9 @@ export default function Ranking() {
                   {r.nickname}{isMe ? ' 👈' : ''}
                 </span>
                 <span className="text-sm font-bold" style={{ color: '#8f7a66' }}>
-                  {tab.isTimeMode ? fmtTime(r.time) : `${r.score.toLocaleString()}점`}
+                  {tab.isSnakeMode
+                    ? `🍎${r.apples}개 · ${fmtTime(r.time)}`
+                    : `${r.score.toLocaleString()}점`}
                 </span>
               </div>
             );

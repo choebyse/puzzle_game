@@ -10,7 +10,7 @@ function fmtTime(ms) {
   return `${m}:${String(s % 60).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
 }
 
-export default function RankingModal({ gameId, isTimeMode = false, onClose }) {
+export default function RankingModal({ gameId, isTimeMode = false, isSnakeMode = false, onClose }) {
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -59,7 +59,9 @@ export default function RankingModal({ gameId, isTimeMode = false, onClose }) {
                 {r.nickname}{isMe ? ' (나)' : ''}
               </span>
               <span className="text-sm font-bold" style={{ color: '#8f7a66' }}>
-                {isTimeMode ? fmtTime(r.time) : `${r.score.toLocaleString()}점`}
+                {isSnakeMode
+                  ? `🍎${r.apples}개 · ${fmtTime(r.time)}`
+                  : `${r.score.toLocaleString()}점`}
               </span>
             </div>
           );

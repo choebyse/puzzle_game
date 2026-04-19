@@ -183,6 +183,10 @@ export default function GameSnake() {
       snake.some(s => s.x === newHead.x && s.y === newHead.y)
     ) {
       stopGame();
+      const deadTime = Date.now() - startTimeRef.current;
+      const deadApples = appleCountRef.current;
+      const deadRankScore = deadApples * 1000000 - deadTime;
+      submitScore('snake', { apples: deadApples, time: deadTime, rankScore: deadRankScore });
       screenRef.current = 'dead';
       setScreen('dead');
       return;
@@ -212,7 +216,7 @@ export default function GameSnake() {
         saveRecords(recs);
         setRecords(recs);
         setLastRecord(rec);
-        submitScore('snake', { time });
+        submitScore('snake', { apples: appleCountRef.current, time, rankScore: appleCountRef.current * 1000000 - time });
         setElapsed(time);
         screenRef.current = 'clear';
         setScreen('clear');
@@ -429,7 +433,7 @@ export default function GameSnake() {
       </div>
 
       {showRanking && (
-        <RankingModal gameId="snake" isTimeMode onClose={() => setShowRanking(false)} />
+        <RankingModal gameId="snake" isTimeMode isSnakeMode onClose={() => setShowRanking(false)} />
       )}
     </div>
   );

@@ -34,8 +34,8 @@ export async function submitScore(gameId, data) {
   const snap = await getDoc(ref);
   if (snap.exists()) {
     const prev = snap.data();
+    if (data.rankScore !== undefined && prev.rankScore >= data.rankScore) return;
     if (data.score !== undefined && prev.score >= data.score) return;
-    if (data.time !== undefined && prev.time <= data.time) return;
   }
 
   await setDoc(ref, { nickname, ...data, updatedAt: Date.now() });
@@ -54,8 +54,8 @@ export async function fetchRankings(gameId, isTimeMode = false) {
     }
   } catch {}
 
-  const field = isTimeMode ? 'time' : 'score';
-  const dir = isTimeMode ? 'asc' : 'desc';
+  const field = isTimeMode ? 'rankScore' : 'score';
+  const dir = 'desc';
   const q = query(
     collection(db, 'rankings', gameId, 'scores'),
     orderBy(field, dir),
