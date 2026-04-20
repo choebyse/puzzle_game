@@ -107,8 +107,7 @@ export default function Ranking() {
         <div className="mt-4 rounded-xl p-3" style={{ backgroundColor: '#f0ede4' }}>
           {[
             '순위는 상위 10위까지만 표시됩니다',
-            '기록은 최고점 갱신 시 자동 등록됩니다',
-            '스네이크는 클리어 시에만 등록됩니다',
+            '10위 안에 드는 기록은 자동 등록됩니다',
             '랭킹은 5분 간격으로 갱신됩니다',
             '닉네임은 메인 화면에서 변경 가능합니다',
           ].map((t, i) => (

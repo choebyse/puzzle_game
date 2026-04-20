@@ -11,14 +11,17 @@ import { submitScore } from '../utils/rankingService';
 export default function Game2048() {
   const { board, score, best, gameOver, won, keepPlaying, restart, onKeepPlaying, gameId } = useGame();
   const [showRanking, setShowRanking] = useState(false);
-  const prevBestRef = useRef(best);
+  const submittedRef = useRef(false);
 
   useEffect(() => {
-    if (best > prevBestRef.current) {
-      prevBestRef.current = best;
-      submitScore('game2048', { score: best });
+    if (gameOver && !submittedRef.current && score > 0) {
+      submittedRef.current = true;
+      submitScore('game2048', { score });
     }
-  }, [best]);
+    if (!gameOver) {
+      submittedRef.current = false;
+    }
+  }, [gameOver, score]);
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#faf8ef' }}>

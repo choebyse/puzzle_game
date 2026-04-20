@@ -71,6 +71,17 @@ export default function GameSuika() {
   const [nextFruit, setNextFruit] = useState(nextFruitRef.current);
   const [gameOver, setGameOver] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
+  const submittedRef = useRef(false);
+
+  useEffect(() => {
+    if (gameOver && !submittedRef.current && scoreRef.current > 0) {
+      submittedRef.current = true;
+      submitScore('suika', { score: scoreRef.current });
+    }
+    if (!gameOver) {
+      submittedRef.current = false;
+    }
+  }, [gameOver]);
   const [revealed, setRevealed] = useState(
     new Set([curFruitRef.current, nextFruitRef.current]),
   );
@@ -135,7 +146,6 @@ export default function GameSuika() {
           );
           localStorage.setItem("suika-best", newBest);
           setBest(newBest);
-          submitScore('suika', { score: newBest });
           if (!isFinal) {
             const newBody = createFruitBody(mx, my, newIndex);
             Matter.World.add(world, newBody);

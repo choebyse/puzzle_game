@@ -91,10 +91,10 @@ export default function GameStroop() {
       saveBest(fs);
       setBest(fs);
       setIsNewBest(true);
-      submitScore('stroop', { score: fs });
     } else {
       setIsNewBest(false);
     }
+    submitScore('stroop', { score: fs });
     setScreen("result");
   }
 

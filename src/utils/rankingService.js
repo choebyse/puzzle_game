@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, doc, setDoc, getDocs, orderBy, query, limit, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, orderBy, query, limit } from 'firebase/firestore';
 
 const CACHE_TTL = 5 * 60 * 1000; // 5분
 const NICKNAME_KEY = 'player_nickname';
@@ -23,22 +23,22 @@ export function getUserId() {
 }
 
 // gameId: 'game2048' | 'stroop' | 'suika' | 'snake'
-// data: { score: number } 또는 { time: number } (snake)
+// data: { score: number } 또는 { rankScore, apples, time } (snake)
 export async function submitScore(gameId, data) {
   const nickname = getNickname();
   if (!nickname) return;
   const uid = getUserId();
 
-  // 기존 내 기록 확인 — 더 좋은 기록일 때만 write
-  const ref = doc(db, 'rankings', gameId, 'scores', uid);
-  const snap = await getDoc(ref);
-  if (snap.exists()) {
-    const prev = snap.data();
-    if (data.rankScore !== undefined && prev.rankScore >= data.rankScore) return;
-    if (data.score !== undefined && prev.score >= data.score) return;
-  }
+  const isTimeMode = data.rankScore !== undefined;
+  const field = isTimeMode ? 'rankScore' : 'score';
+  const newScore = data[field];
 
-  await setDoc(ref, { nickname, ...data, updatedAt: Date.now() });
+  // 글로벌 10위 안에 드는지 확인
+  const rankings = await fetchRankings(gameId, isTimeMode);
+  const qualifies = rankings.length < 10 || newScore > rankings[rankings.length - 1][field];
+  if (!qualifies) return;
+
+  await addDoc(collection(db, 'rankings', gameId, 'scores'), { nickname, uid, ...data, updatedAt: Date.now() });
   // 캐시 무효화
   localStorage.removeItem(CACHE_PREFIX + gameId);
 }
@@ -63,7 +63,7 @@ export async function fetchRankings(gameId, isTimeMode = false) {
   );
 
   const snap = await getDocs(q);
-  const data = snap.docs.map(d => ({ ...d.data(), uid: d.id }));
+  const data = snap.docs.map(d => d.data());
   localStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
   return data;
 }

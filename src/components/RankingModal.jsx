@@ -67,7 +67,7 @@ export default function RankingModal({ gameId, isTimeMode = false, isSnakeMode =
           );
         })}
         <p className="text-xs mt-3 text-center" style={{ color: '#bbada0' }}>
-          상위 10위 표시 · 5분 간격 갱신 · 최고점 자동 등록
+          상위 10위 표시 · 5분 간격 갱신 · 10위 안 기록 자동 등록
         </p>
       </div>
     </div>

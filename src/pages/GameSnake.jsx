@@ -63,6 +63,11 @@ export default function GameSnake() {
   const rafRef = useRef(null);
   const elapsedIntervalRef = useRef(null);
   const screenRef = useRef('title');
+  const pausedRef = useRef(false);
+  const pauseStartRef = useRef(null);
+  const totalPausedRef = useRef(0);
+
+  const [paused, setPaused] = useState(false);
 
   // ── 렌더 ───────────────────────────────────────────────
   function drawGame(t = 1) {
@@ -183,7 +188,7 @@ export default function GameSnake() {
       snake.some(s => s.x === newHead.x && s.y === newHead.y)
     ) {
       stopGame();
-      const deadTime = Date.now() - startTimeRef.current;
+      const deadTime = Date.now() - startTimeRef.current - totalPausedRef.current;
       const deadApples = appleCountRef.current;
       const deadRankScore = deadApples * 1000000 - deadTime;
       submitScore('snake', { apples: deadApples, time: deadTime, rankScore: deadRankScore });
@@ -206,7 +211,7 @@ export default function GameSnake() {
 
       if (newSnake.length === TOTAL_CELLS) {
         stopGame();
-        const time = Date.now() - startTimeRef.current;
+        const time = Date.now() - startTimeRef.current - totalPausedRef.current;
         const rec = {
           time,
           apples: appleCountRef.current,
@@ -223,6 +228,27 @@ export default function GameSnake() {
         return;
       }
       appleRef.current = randomApple(newSnake);
+    }
+  }
+
+  function togglePause() {
+    if (screenRef.current !== 'game') return;
+    if (!pausedRef.current) {
+      pausedRef.current = true;
+      setPaused(true);
+      cancelAnimationFrame(rafRef.current);
+      clearInterval(elapsedIntervalRef.current);
+      pauseStartRef.current = Date.now();
+      drawGame(1);
+    } else {
+      totalPausedRef.current += Date.now() - pauseStartRef.current;
+      pausedRef.current = false;
+      setPaused(false);
+      lastTickTimeRef.current = null;
+      rafRef.current = requestAnimationFrame(gameLoop);
+      elapsedIntervalRef.current = setInterval(() => {
+        setElapsed(Date.now() - startTimeRef.current - totalPausedRef.current);
+      }, 100);
     }
   }
 
@@ -263,16 +289,20 @@ export default function GameSnake() {
     appleCountRef.current = 0;
     startTimeRef.current = Date.now();
     lastTickTimeRef.current = null;
+    pausedRef.current = false;
+    pauseStartRef.current = null;
+    totalPausedRef.current = 0;
     screenRef.current = 'game';
 
     setAppleCount(0);
     setElapsed(0);
+    setPaused(false);
     setLastRecord(null);
     setScreen('game');
 
     rafRef.current = requestAnimationFrame(gameLoop);
     elapsedIntervalRef.current = setInterval(() => {
-      setElapsed(Date.now() - startTimeRef.current);
+      setElapsed(Date.now() - startTimeRef.current - totalPausedRef.current);
     }, 100);
   }
 
@@ -285,6 +315,8 @@ export default function GameSnake() {
   useEffect(() => {
     const onKey = (e) => {
       if (screenRef.current !== 'game') return;
+      if (e.key === ' ' || e.key === 'Escape') { togglePause(); return; }
+      if (pausedRef.current) return;
       const cur = dirRef.current;
       const map = {
         ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 },
@@ -344,10 +376,17 @@ export default function GameSnake() {
 
         <GameHeader title="스네이크" onRanking={() => setShowRanking(true)} />
 
-        {/* 항상 표시: 타이머 + 사과 */}
+        {/* 항상 표시: 사과 + 타이머 + 일시정지 버튼 */}
         <div className="w-full flex justify-between items-center mb-2">
           <span className="text-sm font-bold" style={{ color: '#776e65' }}>🍎 {appleCount}/{TOTAL_APPLES}</span>
           <span className="text-sm font-bold" style={{ color: '#776e65' }}>⏱ {fmtTime(elapsed)}</span>
+          {screen === 'game' && (
+            <button onClick={togglePause}
+              className="px-3 py-1 rounded-lg text-xs font-bold"
+              style={{ backgroundColor: '#e0d9ce', color: '#776e65' }}>
+              {paused ? '▶ 재개' : '⏸ 일시정지'}
+            </button>
+          )}
         </div>
 
         {/* 캔버스 + 오버레이 */}
@@ -357,6 +396,19 @@ export default function GameSnake() {
             className="rounded-xl border w-full"
             style={{ borderColor: '#d3cdc0', opacity: screen === 'dead' ? 0.35 : 1 }}
           />
+
+          {/* 오버레이: 일시정지 */}
+          {screen === 'game' && paused && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl"
+              style={{ backgroundColor: 'rgba(250,248,239,0.85)' }}>
+              <p className="text-2xl font-bold mb-4" style={{ color: '#776e65' }}>⏸ 일시정지</p>
+              <button onClick={togglePause}
+                className="px-10 py-3 rounded-xl text-white font-bold text-xl"
+                style={{ backgroundColor: '#27ae60', boxShadow: '0 4px 16px rgba(39,174,96,0.4)' }}>
+                ▶ 재개
+              </button>
+            </div>
+          )}
 
           {/* 오버레이: 타이틀 */}
           {screen === 'title' && (
@@ -375,7 +427,7 @@ export default function GameSnake() {
             <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl"
               style={{ backgroundColor: 'rgba(250,248,239,0.85)' }}>
               <p className="text-2xl font-bold mb-1" style={{ color: '#776e65' }}>💀 게임오버</p>
-              <p className="text-sm mb-4" style={{ color: '#bbada0' }}>죽으면 기록은 저장되지 않아요</p>
+              <p className="text-sm mb-4" style={{ color: '#bbada0' }}>클리어 후 10위 안에 들면 기록이 등록돼요</p>
               <button onClick={startGame}
                 className="px-10 py-3 rounded-xl text-white font-bold text-xl"
                 style={{ backgroundColor: '#27ae60', boxShadow: '0 4px 16px rgba(39,174,96,0.4)' }}>
