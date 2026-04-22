@@ -192,6 +192,7 @@ export default function GameSnake() {
       const deadApples = appleCountRef.current;
       const deadRankScore = deadApples * 1000000 - deadTime;
       submitScore('snake', { apples: deadApples, time: deadTime, rankScore: deadRankScore });
+      setElapsed(deadTime);
       screenRef.current = 'dead';
       setScreen('dead');
       return;
@@ -475,8 +476,8 @@ export default function GameSnake() {
 
         <GameFooter
           shareText={
-            records.length > 0
-              ? `스네이크 게임\n🏆 최고 기록: ${fmtTime(records[0].time)} · 🍎 ${records[0].apples}/${TOTAL_APPLES}\nhttps://puzzle-game-eight-weld.vercel.app`
+            (screen === 'dead' || screen === 'clear') && elapsed > 0
+              ? `스네이크 게임\n${screen === 'clear' ? '🎉 클리어' : '💀 사망'} · 🍎 ${appleCount}개 · ${fmtTime(elapsed)}\nhttps://puzzle-game-eight-weld.vercel.app`
               : `스네이크 게임\nhttps://puzzle-game-eight-weld.vercel.app`
           }
           shareLabel="기록 공유"
