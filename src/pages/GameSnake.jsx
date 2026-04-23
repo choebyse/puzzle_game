@@ -50,6 +50,7 @@ export default function GameSnake() {
   const [elapsed, setElapsed] = useState(0);
   const [records, setRecords] = useState(loadRecords);
   const [lastRecord, setLastRecord] = useState(null);
+  const [lastResult, setLastResult] = useState(null);
   const [showRanking, setShowRanking] = useState(false);
 
   const snakeRef = useRef(initSnake());
@@ -193,6 +194,7 @@ export default function GameSnake() {
       const deadRankScore = deadApples * 1000000 - deadTime;
       submitScore('snake', { apples: deadApples, time: deadTime, rankScore: deadRankScore });
       setElapsed(deadTime);
+      setLastResult({ apples: deadApples, time: deadTime, cleared: false });
       screenRef.current = 'dead';
       setScreen('dead');
       return;
@@ -224,6 +226,7 @@ export default function GameSnake() {
         setLastRecord(rec);
         submitScore('snake', { apples: appleCountRef.current, time, rankScore: appleCountRef.current * 1000000 - time });
         setElapsed(time);
+        setLastResult({ apples: appleCountRef.current, time, cleared: true });
         screenRef.current = 'clear';
         setScreen('clear');
         return;
@@ -299,6 +302,7 @@ export default function GameSnake() {
     setElapsed(0);
     setPaused(false);
     setLastRecord(null);
+    setLastResult(null);
     setScreen('game');
 
     rafRef.current = requestAnimationFrame(gameLoop);
@@ -476,8 +480,8 @@ export default function GameSnake() {
 
         <GameFooter
           shareText={
-            (screen === 'dead' || screen === 'clear') && elapsed > 0
-              ? `스네이크 게임\n${screen === 'clear' ? '🎉 클리어' : '💀 사망'} · 🍎 ${appleCount}개 · ${fmtTime(elapsed)}\nhttps://puzzle-game-eight-weld.vercel.app`
+            lastResult
+              ? `스네이크 게임\n${lastResult.cleared ? '🎉 클리어' : '💀 사망'} · 🍎 ${lastResult.apples}개 · ${fmtTime(lastResult.time)}\nhttps://puzzle-game-eight-weld.vercel.app`
               : `스네이크 게임\nhttps://puzzle-game-eight-weld.vercel.app`
           }
           shareLabel="기록 공유"
