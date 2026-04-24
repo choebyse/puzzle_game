@@ -28,6 +28,12 @@ const GAMES = [
     description: '글자 색을 골라라 · 60초 안에 최고 점수 도전!',
     bg: '#9b59b6',
   },
+  {
+    path: '/circle',
+    title: '원 그리기',
+    description: '손으로 완벽한 원을 그려라 · 완성도 측정 후 공유!',
+    bg: '#5b8faf',
+  },
 ];
 
 export default function Home() {

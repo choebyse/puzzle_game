@@ -4,6 +4,7 @@ import Game2048 from './pages/Game2048';
 import GameSuika from './pages/GameSuika';
 import GameSnake from './pages/GameSnake';
 import GameStroop from './pages/GameStroop';
+import GameCircle from './pages/GameCircle';
 import Ranking from './pages/Ranking';
 import './index.css';
 
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/suika" element={<GameSuika />} />
         <Route path="/snake" element={<GameSnake />} />
         <Route path="/stroop" element={<GameStroop />} />
+        <Route path="/circle" element={<GameCircle />} />
         <Route path="/ranking" element={<Ranking />} />
       </Routes>
     </BrowserRouter>
