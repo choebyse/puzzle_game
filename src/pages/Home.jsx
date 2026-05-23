@@ -6,33 +6,45 @@ import NicknameModal from '../components/NicknameModal';
 const GAMES = [
   {
     path: '/2048',
+    emoji: '🔢',
     title: '2048',
-    description: '같은 숫자를 합쳐 최고점을 노리세요',
+    description: '같은 숫자를 합쳐 최고점을!',
     bg: '#bbada0',
   },
   {
     path: '/suika',
-    title: '벌크업 게임',
-    description: '수박게임 비스무리한 거 · 멍청이들을 떨어뜨려 합쳐보세요',
+    emoji: '💪',
+    title: '벌크업(수박게임)',
+    description: '멍청이들을 떨어뜨려 합쳐라',
     bg: '#8fbf6a',
   },
   {
     path: '/snake',
+    emoji: '🐍',
     title: '스네이크',
-    description: '사과를 먹어 뱀을 키우세요 · 모든 칸을 채우면 클리어!',
+    description: '모든 칸을 채우면 클리어!',
     bg: '#27ae60',
   },
   {
     path: '/stroop',
-    title: '스트룹 컬러',
-    description: '글자 색을 골라라 · 60초 안에 최고 점수 도전!',
+    emoji: '🎨',
+    title: '스트룹',
+    description: '60초 안에 최고점 도전!',
     bg: '#9b59b6',
   },
   {
     path: '/circle',
+    emoji: '⭕',
     title: '원 그리기',
-    description: '손으로 완벽한 원을 그려라 · 완성도 측정 후 공유!',
+    description: '완벽한 원을 그려라',
     bg: '#5b8faf',
+  },
+  {
+    path: '/minesweeper',
+    emoji: '💣',
+    title: '지뢰찾기',
+    description: '3단계 난이도 도전!',
+    bg: '#7d6b5e',
   },
 ];
 
@@ -104,16 +116,17 @@ export default function Home() {
           )}
         </div>
 
-        <div className="flex flex-col gap-4 overflow-y-auto" style={{ maxHeight: '55vh' }}>
+        <div className="grid grid-cols-2 gap-3">
           {GAMES.map((game) => (
             <button
               key={game.path}
               onClick={() => navigate(game.path)}
-              className="w-full py-6 rounded-xl text-white text-left px-6 flex-shrink-0"
+              className="rounded-2xl text-white text-left p-4 active:scale-95 transition-transform"
               style={{ backgroundColor: game.bg }}
             >
-              <p className="text-2xl font-bold">{game.title}</p>
-              <p className="text-sm mt-1 opacity-80">{game.description}</p>
+              <div className="text-3xl mb-2">{game.emoji}</div>
+              <p className="text-base font-bold leading-tight">{game.title}</p>
+              <p className="text-xs mt-1 opacity-80 leading-snug">{game.description}</p>
             </button>
           ))}
         </div>

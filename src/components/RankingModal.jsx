@@ -3,25 +3,41 @@ import { fetchRankings, getUserId } from '../utils/rankingService';
 
 const RANKS = ['🥇', '🥈', '🥉', '4.', '5.', '6.', '7.', '8.', '9.', '10.'];
 
-function fmtTime(ms) {
+function fmtSnakeTime(ms) {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   const cs = Math.floor((ms % 1000) / 10);
   return `${m}:${String(s % 60).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
 }
 
-export default function RankingModal({ gameId, isTimeMode = false, isSnakeMode = false, onClose }) {
+function fmtMineTime(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  const tenths = Math.floor((ms % 1000) / 100);
+  if (min > 0) return `${min}:${String(sec).padStart(2, '0')}`;
+  return `${sec}.${tenths}s`;
+}
+
+// tabs: [{ label, gameId }] — 복수 난이도 랭킹용
+export default function RankingModal({ gameId, isTimeMode = false, isSnakeMode = false, isMinesweeperMode = false, tabs, defaultTab, onClose }) {
+  const [activeGameId, setActiveGameId] = useState(defaultTab || gameId);
   const [rankings, setRankings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const myUid = getUserId();
 
+  const usesRankScore = isSnakeMode || isMinesweeperMode;
+
   useEffect(() => {
-    fetchRankings(gameId, isTimeMode)
+    setLoading(true);
+    setError(false);
+    setRankings([]);
+    fetchRankings(activeGameId, usesRankScore || isTimeMode)
       .then(setRankings)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [gameId, isTimeMode]);
+  }, [activeGameId, usesRankScore, isTimeMode]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50"
@@ -35,6 +51,25 @@ export default function RankingModal({ gameId, isTimeMode = false, isSnakeMode =
           <p className="font-bold text-base" style={{ color: '#776e65' }}>🏆 글로벌 랭킹</p>
           <button onClick={onClose} className="text-sm font-bold" style={{ color: '#bbada0' }}>닫기</button>
         </div>
+
+        {/* 난이도 탭 (지뢰찾기 등 복수 gameId용) */}
+        {tabs && (
+          <div className="flex gap-1 mb-3">
+            {tabs.map(tab => (
+              <button
+                key={tab.gameId}
+                onClick={() => setActiveGameId(tab.gameId)}
+                className="flex-1 py-1.5 rounded-lg text-xs font-bold"
+                style={{
+                  backgroundColor: activeGameId === tab.gameId ? '#8f7a66' : '#f0ede4',
+                  color: activeGameId === tab.gameId ? 'white' : '#8f7a66',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {loading && (
           <p className="text-center text-sm py-4" style={{ color: '#bbada0' }}>불러오는 중...</p>
@@ -60,7 +95,9 @@ export default function RankingModal({ gameId, isTimeMode = false, isSnakeMode =
               </span>
               <span className="text-sm font-bold" style={{ color: '#8f7a66' }}>
                 {isSnakeMode
-                  ? `🍎${r.apples}개 · ${fmtTime(r.time)}`
+                  ? `🍎${r.apples}개 · ${fmtSnakeTime(r.time)}`
+                  : isMinesweeperMode
+                  ? `⏱ ${fmtMineTime(r.time)}`
                   : `${r.score.toLocaleString()}점`}
               </span>
             </div>
